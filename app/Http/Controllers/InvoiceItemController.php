@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\InvoiceItem;
 use Illuminate\Http\Request;
 use App\Http\Resources\InvoiceItemResource;
+use Illuminate\Support\Facades\Validator;
+use Exception;
 
 class InvoiceItemController extends Controller
 {
@@ -13,8 +15,16 @@ class InvoiceItemController extends Controller
      */
     public function index()
     {
-        $invoiceItems = InvoiceItem::getAllInvoiceItem();
-        return InvoiceItemResource::collection($invoiceItems);
+        try {
+            $invoiceItems = InvoiceItem::getAllInvoiceItem();
+            if ($invoiceItems->isNotEmpty()) {
+                return InvoiceItemResource::collection($invoiceItems)->response()->setStatusCode(200);
+            } else {
+                return response()->json(['message' => 'Aucun élément de facture trouvé'], 404);
+            }
+        } catch (Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -23,7 +33,7 @@ class InvoiceItemController extends Controller
     public function create(Request $request)
     {
         // Valider les données
-        $validated = $request->validate([
+        $validated = Validator::make($request->all(), [
             'description' => 'required|string|max:255',
             'prix_unitaire' => 'required|numeric',
             'tva' => 'required|numeric',
@@ -31,53 +41,80 @@ class InvoiceItemController extends Controller
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer',
             'total' => 'required|numeric',
-           
+        ], [
+            'description.required' => 'La description est requise.',
+            'description.string' => 'La description doit être une chaîne de caractères.',
+            'description.max' => 'La description ne doit pas dépasser 255 caractères.',
+            'prix_unitaire.required' => 'Le prix unitaire est requis.',
+            'prix_unitaire.numeric' => 'Le prix unitaire doit être numérique.',
+            'tva.required' => 'La TVA est requise.',
+            'tva.numeric' => 'La TVA doit être numérique.',
+            'invoice_id.required' => 'L\'ID de la facture est requis.',
+            'invoice_id.exists' => 'L\'ID de la facture spécifiée n\'existe pas.',
+            'product_id.required' => 'L\'ID du produit est requis.',
+            'product_id.exists' => 'L\'ID du produit spécifié n\'existe pas.',
+            'quantity.required' => 'La quantité est requise.',
+            'quantity.integer' => 'La quantité doit être un entier.',
+            'total.required' => 'Le total est requis.',
+            'total.numeric' => 'Le total doit être numérique.',
         ]);
 
+        if ($validated->fails()) {
+            return response()->json(['errors' => $validated->errors()], 422);
+        }
+
         // Créer l'élément de facture
-        return InvoiceItem::CreateInvoiceItem($validated);
+        return InvoiceItem::CreateInvoiceItem($validated->validated());
     }
-
-    public function update(Request $request, InvoiceItem $invoiceItem)
-    {
-        InvoiceItem::UpdateInvoiceItem($request);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    /*public function store(Request $request)
-    {
-        //
-    }*/
-
-    /**
-     * Display the specified resource.
-     */
-    /*public function show(InvoiceItem $invoiceItem)
-    {
-        //
-    }*/
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    /*public function edit(InvoiceItem $invoiceItem)
-    {
-        //
-    }*/
 
     /**
      * Update the specified resource in storage.
      */
-   
+    public function update(Request $request, InvoiceItem $invoiceItem)
+    {
+        // Valider les données
+        $validated = Validator::make($request->all(), [
+            'id' => 'required|exists:invoice_items,id',
+            'description' => 'required|string|max:255',
+            'prix_unitaire' => 'required|numeric',
+            'tva' => 'required|numeric',
+            'invoice_id' => 'required|exists:invoices,id',
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'required|integer',
+            'total' => 'required|numeric',
+        ], [
+            'id.required' => 'L\'ID est requis.',
+            'id.exists' => 'L\'ID spécifié n\'existe pas.',
+            'description.required' => 'La description est requise.',
+            'description.string' => 'La description doit être une chaîne de caractères.',
+            'description.max' => 'La description ne doit pas dépasser 255 caractères.',
+            'prix_unitaire.required' => 'Le prix unitaire est requis.',
+            'prix_unitaire.numeric' => 'Le prix unitaire doit être numérique.',
+            'tva.required' => 'La TVA est requise.',
+            'tva.numeric' => 'La TVA doit être numérique.',
+            'invoice_id.required' => 'L\'ID de la facture est requis.',
+            'invoice_id.exists' => 'L\'ID de la facture spécifiée n\'existe pas.',
+            'product_id.required' => 'L\'ID du produit est requis.',
+            'product_id.exists' => 'L\'ID du produit spécifié n\'existe pas.',
+            'quantity.required' => 'La quantité est requise.',
+            'quantity.integer' => 'La quantité doit être un entier.',
+            'total.required' => 'Le total est requis.',
+            'total.numeric' => 'Le total doit être numérique.',
+        ]);
+
+        if ($validated->fails()) {
+            return response()->json(['errors' => $validated->errors()], 422);
+        }
+
+        // Mettre à jour l'élément de facture
+        return InvoiceItem::UpdateInvoiceItem($request);
+    }
 
     /**
      * Remove the specified resource from storage.
      */
-    
-
-    public function delete($id) {
+    public function delete($id)
+    {
         $deleted = InvoiceItem::deleteInvoiceItem($id);
         return response()->json(['success' => $deleted]);
     }

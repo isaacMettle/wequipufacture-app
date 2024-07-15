@@ -2,47 +2,129 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ClientResource;
 use App\Models\Client;
 use Illuminate\Http\Request;
-use App\Http\Resources\ClientResource;
+use Illuminate\Support\Facades\Validator;
+use Exception;
 
 class ClientController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $client = Client::getAllClient();
-        return ClientResource::collection($client);
+        try {
+            $list = Client::getAllClient();
+            if ($list->isNotEmpty()) {
+                $resp = ClientResource::collection($list);
+                return response()->json([
+                    'message' => 'Liste des Clients',
+                    'Clients'=> $resp,
+                    'Status'=> 201
+                ]);
+            } else {
+                return response()->json(['message'=>'Aucun Enregistrement']);
+            }
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'Status'=> 'Fail'
+            ]);
+        }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(Request $request)
     {
-        // Valider les données
-        $validated = $request->validate([
+        $validated = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'NIF' => 'required|string|max:255',
+            'NIF' => 'required|string|max:20',
             'email' => 'required|email|max:255',
             'address' => 'required|string|max:255',
+        ], [
+            'name.required' => 'Le nom est requis.',
+            'name.string' => 'Le nom doit être une chaîne de caractères.',
+            'name.max' => 'Le nom ne doit pas dépasser 255 caractères.',
+            'NIF.required' => 'Le NIF est requis.',
+            'NIF.string' => 'Le NIF doit être une chaîne de caractères.',
+            'NIF.max' => 'Le NIF ne doit pas dépasser 20 caractères.',
+            'email.required' => 'L\'email est requis.',
+            'email.email' => 'L\'email doit être une adresse email valide.',
+            'email.max' => 'L\'email ne doit pas dépasser 255 caractères.',
+            'address.required' => 'L\'adresse est requise.',
+            'address.string' => 'L\'adresse doit être une chaîne de caractères.',
+            'address.max' => 'L\'adresse ne doit pas dépasser 255 caractères.',
         ]);
 
-        // Créer le client
-        return Client::CreateClient($validated);
-    }
+        if ($validated->fails()) {
+            return response()->json(['errors' => $validated->errors()], 422);
+        }
 
-    // Les autres méthodes du contrôleur...
+        $client = Client::CreateClient($validated->validated());
+
+        return response()->json([
+            'message' => 'Client enregistré avec succès',
+            'client' => new ClientResource($client),
+            'Status' => 201
+        ]);
+    }
 
     public function update(Request $request, Client $client)
     {
-        Client::UpdateClient($request);
+        $validated = Validator::make($request->all(), [
+            'id' => 'required|exists:clients,id',
+            'name' => 'required|string|max:255',
+            'NIF' => 'required|string|max:20',
+            'email' => 'required|email|max:255',
+            'address' => 'required|string|max:255',
+        ], [
+            'id.required' => 'L\'ID est requis.',
+            'id.exists' => 'L\'ID spécifié n\'existe pas.',
+            'name.required' => 'Le nom est requis.',
+            'name.string' => 'Le nom doit être une chaîne de caractères.',
+            'name.max' => 'Le nom ne doit pas dépasser 255 caractères.',
+            'NIF.required' => 'Le NIF est requis.',
+            'NIF.string' => 'Le NIF doit être une chaîne de caractères.',
+            'NIF.max' => 'Le NIF ne doit pas dépasser 20 caractères.',
+            'email.required' => 'L\'email est requis.',
+            'email.email' => 'L\'email doit être une adresse email valide.',
+            'email.max' => 'L\'email ne doit pas dépasser 255 caractères.',
+            'address.required' => 'L\'adresse est requise.',
+            'address.string' => 'L\'adresse doit être une chaîne de caractères.',
+            'address.max' => 'L\'adresse ne doit pas dépasser 255 caractères.',
+        ]);
+
+        if ($validated->fails()) {
+            return response()->json(['errors' => $validated->errors()], 422);
+        }
+
+        $client = Client::UpdateClient($validated->validated());
+
+        return response()->json([
+            'message' => 'Client modifié avec succès',
+            'client' => new ClientResource($client),
+            'Status' => 200
+        ]);
     }
 
-    public function delete($id) {
-        $deleted = Client::deleteClient($id);
-        return response()->json(['success' => $deleted]);
+    public function delete($id)
+    {
+        try {
+            $deleted = Client::deleteClient($id);
+            if ($deleted) {
+                return response()->json([
+                    'message' => 'Client supprimé avec succès',
+                    'Status'=> 200
+                ]);
+            } else {
+                return response()->json([
+                    'message' => 'Aucun client trouvé avec cet ID',
+                    'Status'=> 'Fail'
+                ]);
+            }
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'Status'=> 'Fail'
+            ]);
+        }
     }
 }
