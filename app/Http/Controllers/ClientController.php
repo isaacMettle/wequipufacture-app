@@ -40,4 +40,9 @@ class ClientController extends Controller
     {
         Client::UpdateClient($request);
     }
+
+    public function delete($id) {
+        $deleted = Client::deleteClient($id);
+        return response()->json(['success' => $deleted]);
+    }
 }

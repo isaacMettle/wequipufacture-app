@@ -49,13 +49,12 @@ class Invoice extends Model {
         $invoice->statut = $data['statut'];
         $invoice->approbation = $data['approbation'];
         $invoice->save();
-
         return $invoice;
     }
 
     public static function UpdateInvoice($data)
     {
-        $invoice = self::find($data['id']);
+        $invoice = Invoice::find($data['id']);
         $invoice->client_id = $data['client_id'];
         $invoice->user_id = $data['user_id'];
         $invoice->date = $data['date'];
@@ -63,5 +62,15 @@ class Invoice extends Model {
         $invoice->statut = $data['statut'];
         $invoice->approbation = $data['approbation'];
         $invoice->save();
+        return $invoice;
+    }
+
+    public static function deleteInvoice($id) {
+        $invoice = Invoice::find($id);
+        if ($invoice) {
+            $invoice->delete();
+            return true;
+        }
+        return false;
     }
 }

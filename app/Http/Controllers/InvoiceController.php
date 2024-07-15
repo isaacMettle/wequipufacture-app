@@ -38,16 +38,13 @@ class InvoiceController extends Controller
 
     // Les autres méthodes du contrôleur...
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Invoice $invoice)
     {
-        $invoice = Invoice::find($id);
-        $invoice->client_id = $request->client_id;
-        $invoice->user_id = $request->user_id;
-        $invoice->date = $request->date;
-        $invoice->total = $request->total;
-        $invoice->statut = $request->statut;
-        $invoice->approbation = $request->approbation;
-        $invoice->save();
-        return $invoice;
+        Invoice::UpdateInvoice($request);
+    }
+
+    public function delete($id) {
+        $deleted = Invoice::deleteInvoice($id);
+        return response()->json(['success' => $deleted]);
     }
 }

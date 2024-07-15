@@ -34,6 +34,11 @@ class UserController extends Controller
         return User::createUser($validated);
     }
 
+    public function update(Request $request, User $user)
+    {
+        User::updateUser($request);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -61,16 +66,13 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
-    {
-        //
-    }
+  
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user)
-    {
-        //
+    public function delete($id) {
+        $deleted = User::deleteClient($id);
+        return response()->json(['success' => $deleted]);
     }
 }

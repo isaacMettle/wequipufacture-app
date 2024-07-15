@@ -44,4 +44,23 @@ class User extends Authenticatable {
 
         return $user;
     }
+
+    public static function updateUser($data){
+        $user = User::find($data->id);
+        $user->name = $data->name;
+        $user->email = $data->email;
+        $user->password = bcrypt($data->password);
+        $user->role_id = $data->role_id;
+        $user->save();
+        return $user;
+    }
+
+    public static function deleteUser($id) {
+        $user = User::find($id);
+        if ($user) {
+            $user->delete();
+            return true;
+        }
+        return false;
+    }
 }

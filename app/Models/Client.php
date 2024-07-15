@@ -61,4 +61,13 @@ class Client extends Model {
         $client->save();
         return $client;
     }
+
+    public static function deleteClient($id) {
+        $client = Client::find($id);
+        if ($client) {
+            $client->delete();
+            return true;
+        }
+        return false;
+    }
 }

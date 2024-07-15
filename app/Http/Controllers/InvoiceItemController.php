@@ -75,8 +75,10 @@ class InvoiceItemController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(InvoiceItem $invoiceItem)
-    {
-        //
+    
+
+    public function delete($id) {
+        $deleted = InvoiceItem::deleteInvoiceItem($id);
+        return response()->json(['success' => $deleted]);
     }
 }

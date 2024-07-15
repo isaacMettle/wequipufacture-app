@@ -62,4 +62,13 @@ class InvoiceItem extends Model {
         $pdt->total = $data['total'];
         $pdt->save();
     }
+
+    public static function deleteInvoiceItem($id) {
+        $invoiceItem = self::find($id);
+        if ($invoiceItem) {
+            $invoiceItem->delete();
+            return true;
+        }
+        return false;
+    }
 }

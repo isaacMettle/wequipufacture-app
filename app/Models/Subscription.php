@@ -47,4 +47,25 @@ class Subscription extends Model {
 
         return $subscription;
     }
+
+    public static function updatedSubscription($data)
+    {
+        $subscription = self::find($data['id']);
+        $subscription->start_date = $data['start_date'];
+        $subscription->end_date = $data['end_date'];
+        $subscription->status = $data['status'];
+        $subscription->price = $data['price'];
+        $subscription->client_id = $data['client_id'];
+        $subscription->product_id = $data['product_id'];
+        $subscription->save();
+    }
+
+    public static function deleteSubscription($id) {
+        $subscription = self::find($id);
+        if ($subscription) {
+            $subscription->delete();
+            return true;
+        }
+        return false;
+    }
 }

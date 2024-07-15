@@ -35,4 +35,23 @@ class Payment extends Model {
         $payment->date = $data['date'];
         $payment->save();
     }
+
+    public static function updatePayment($data)
+    {
+        $payment= Payment::find($data->id);
+        $payment->client_id=$data->client_id;
+        $payment->amount=$data->amount;
+        $payment->date=$data->date;
+        $payment->save();
+        return $payment;
+    }
+
+    public static function deletePayment($id) {
+        $payment = self::find($id);
+        if ($payment) {
+            $payment->delete();
+            return true;
+        }
+        return false;
+    }
 }

@@ -40,4 +40,18 @@ class Role extends Model {
         $role->name=$data->name;
         $role->save();
     }
+
+    public static function updateRole($data)
+    {
+        $role= Role::find($data->id);   
+        $role->name = $data->name;
+        $role->save();
+        return $role;
+    }
+
+    public static function deleteRole($id)
+    {
+        $role= Role::find($id);
+        $role->delete();
+    }
 }

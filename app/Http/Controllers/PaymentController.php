@@ -33,6 +33,16 @@ class PaymentController extends Controller
         return Payment::CreatePayment($validated);
     }
 
+    public function update(Request $request, Payment $payment)
+    {
+        Payment::updatePayment($request);
+    }
+
+    public function delete($id) {
+        $deleted = Payment::deletePayment($id);
+        return response()->json(['success' => $deleted]);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -60,16 +70,13 @@ class PaymentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Payment $payment)
-    {
-        //
-    }
+ 
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Payment $payment)
+    /*public function destroy(Payment $payment)
     {
         //
-    }
+    }*/
 }

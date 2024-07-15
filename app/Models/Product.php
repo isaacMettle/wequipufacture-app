@@ -61,4 +61,13 @@ class Product extends Model {
         $pdt->category_id = $data['category_id'];
         $pdt->save();
     }   
+
+    public static function deleteProduct($id) {
+        $product = self::find($id);
+        if ($product) {
+            $product->delete();
+            return true;
+        }
+        return false;
+    }
 }

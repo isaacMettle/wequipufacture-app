@@ -5,20 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
+
 class Category extends Model {
     use HasFactory, Notifiable;
 
-    protected $fillable=[
+    protected $fillable = [
         'name',
     ];
 
-    protected $table='categories';
-
-    protected $primaryKey='id';
-
-    protected $keytype='int';
-
-    public $timestamp=false;
+    protected $table = 'categories';
+    protected $primaryKey = 'id';
+    protected $keyType = 'int';
+    public $timestamps = false; // Correction: timestamps avec 's'
 
     public function products() {
         return $this->hasMany(Product::class);
@@ -28,23 +26,26 @@ class Category extends Model {
         return Category::all();
     }
 
-
-    public static function CreateCategory($data) 
-    {
-          
-        $pdt=new self();
-        $pdt->name=$data->name;
-        $pdt->save();
-
+    public static function createCategory($data) {
+        $category = new self();
+        $category->name = $data['name'];
+        $category->save();
+        return $category;
     }
 
-    public static function UpdateCategory($data) 
-    {
-          
-        $pdt=Category::find($data->id);
-        $pdt->name=$data->name;
-        $pdt->save();
-
+    public static function updateCategory($data) {
+        $category = Category::find($data['id']);
+        $category->name = $data['name'];
+        $category->save();
+        return $category;
     }
 
+    public static function deleteCategory($id) {
+        $category = Category::find($id);
+        if ($category) {
+            $category->delete();
+            return true;
+        }
+        return false;
+    }
 }

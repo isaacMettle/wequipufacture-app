@@ -24,6 +24,10 @@ class RoleController extends Controller
         return  Role::CreateRole($request);
     }
 
+    public function update(Request $request, Role $role)
+    {
+        Role::updateRole($request);
+    }
     /**
      * Store a newly created resource in storage.
      */
@@ -51,16 +55,13 @@ class RoleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Role $role)
-    {
-        //
-    }
+    
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Role $role)
-    {
-        //
+    public function delete($id) {
+        $deleted = Role::deleteRole($id);
+        return response()->json(['success' => $deleted]);
     }
 }

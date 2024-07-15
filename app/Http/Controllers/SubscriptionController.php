@@ -36,6 +36,11 @@ class SubscriptionController extends Controller
         return Subscription::createSubscription($validated);
     }
 
+    public function update(Request $request, Subscription $subscription)
+    {
+        Subscription::updatedSubscription($request);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -63,16 +68,14 @@ class SubscriptionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Subscription $subscription)
-    {
-        //
-    }
+  
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Subscription $subscription)
-    {
-        //
-    }
+    public function delete($id) {
+        $deleted = Subscription::deleteSubscription($id);
+        return response()->json(['success' => $deleted]);
+}
+
 }
