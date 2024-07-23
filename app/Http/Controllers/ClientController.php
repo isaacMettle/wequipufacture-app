@@ -16,18 +16,14 @@ class ClientController extends Controller
             $list = Client::getAllClient();
             if ($list->isNotEmpty()) {
                 $resp = ClientResource::collection($list);
-                return response()->json([
-                    'message' => 'Liste des Clients',
-                    'Clients'=> $resp,
-                    'Status'=> 201
-                ]);
+                return response()->json($resp);
             } else {
-                return response()->json(['message'=>'Aucun Enregistrement']);
+                return response()->json(['message' => 'Aucun Enregistrement']);
             }
         } catch (Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-                'Status'=> 'Fail'
+                'Status' => 'Fail'
             ]);
         }
     }
@@ -39,19 +35,6 @@ class ClientController extends Controller
             'NIF' => 'required|string|max:20',
             'email' => 'required|email|max:255',
             'address' => 'required|string|max:255',
-        ], [
-            'name.required' => 'Le nom est requis.',
-            'name.string' => 'Le nom doit être une chaîne de caractères.',
-            'name.max' => 'Le nom ne doit pas dépasser 255 caractères.',
-            'NIF.required' => 'Le NIF est requis.',
-            'NIF.string' => 'Le NIF doit être une chaîne de caractères.',
-            'NIF.max' => 'Le NIF ne doit pas dépasser 20 caractères.',
-            'email.required' => 'L\'email est requis.',
-            'email.email' => 'L\'email doit être une adresse email valide.',
-            'email.max' => 'L\'email ne doit pas dépasser 255 caractères.',
-            'address.required' => 'L\'adresse est requise.',
-            'address.string' => 'L\'adresse doit être une chaîne de caractères.',
-            'address.max' => 'L\'adresse ne doit pas dépasser 255 caractères.',
         ]);
 
         if ($validated->fails()) {
@@ -67,36 +50,25 @@ class ClientController extends Controller
         ]);
     }
 
-    public function update(Request $request, Client $client)
+    public function update(Request $request, $id)
     {
         $validated = Validator::make($request->all(), [
-            'id' => 'required|exists:clients,id',
             'name' => 'required|string|max:255',
             'NIF' => 'required|string|max:20',
             'email' => 'required|email|max:255',
             'address' => 'required|string|max:255',
-        ], [
-            'id.required' => 'L\'ID est requis.',
-            'id.exists' => 'L\'ID spécifié n\'existe pas.',
-            'name.required' => 'Le nom est requis.',
-            'name.string' => 'Le nom doit être une chaîne de caractères.',
-            'name.max' => 'Le nom ne doit pas dépasser 255 caractères.',
-            'NIF.required' => 'Le NIF est requis.',
-            'NIF.string' => 'Le NIF doit être une chaîne de caractères.',
-            'NIF.max' => 'Le NIF ne doit pas dépasser 20 caractères.',
-            'email.required' => 'L\'email est requis.',
-            'email.email' => 'L\'email doit être une adresse email valide.',
-            'email.max' => 'L\'email ne doit pas dépasser 255 caractères.',
-            'address.required' => 'L\'adresse est requise.',
-            'address.string' => 'L\'adresse doit être une chaîne de caractères.',
-            'address.max' => 'L\'adresse ne doit pas dépasser 255 caractères.',
         ]);
 
         if ($validated->fails()) {
             return response()->json(['errors' => $validated->errors()], 422);
         }
 
-        $client = Client::UpdateClient($validated->validated());
+        $client = Client::find($id);
+        if (!$client) {
+            return response()->json(['message' => 'Client non trouvé'], 404);
+        }
+
+        $client->update($validated->validated());
 
         return response()->json([
             'message' => 'Client modifié avec succès',
@@ -112,18 +84,18 @@ class ClientController extends Controller
             if ($deleted) {
                 return response()->json([
                     'message' => 'Client supprimé avec succès',
-                    'Status'=> 200
+                    'Status' => 200
                 ]);
             } else {
                 return response()->json([
                     'message' => 'Aucun client trouvé avec cet ID',
-                    'Status'=> 'Fail'
+                    'Status' => 'Fail'
                 ]);
             }
         } catch (Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-                'Status'=> 'Fail'
+                'Status' => 'Fail'
             ]);
         }
     }

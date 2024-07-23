@@ -17,16 +17,12 @@ class CategoryController extends Controller
     {
         try {
             $categories = Category::getAllCategory();
-            if ($categories->isNotEmpty()) {
-                return CategoryResource::collection($categories)
-                    ->response()
-                    ->setStatusCode(201)
-                    ->header('Content-Type', 'application/json');
-            } else {
-                return response()->json(['message' => 'Aucune catégorie enregistrée'], 404);
-            }
+            $cat = CategoryResource::collection( $categories);
+            return response()->json($cat);
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+            return response()->json([
+                'message' => $e->getMessage(), 
+                'Status'=> 'fail']);
         }
     }
 

@@ -6,6 +6,8 @@ use App\Models\Invoice;
 use Illuminate\Http\Request;
 use App\Http\Resources\InvoiceResource;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+
 use Exception;
 
 class InvoiceController extends Controller
@@ -34,6 +36,22 @@ class InvoiceController extends Controller
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
+
+    public function getInvoicesWithClientInfo()
+{
+    try {
+        // Join invoices with clients
+        $data = DB::table('invoices')
+            ->join('clients', 'invoices.client_id', '=', 'clients.id')
+            ->select('invoices.id as invoice_id', 'clients.name as client_name', 'invoices.total', 'invoices.statut', 'invoices.date')
+            ->get();
+
+        return response()->json($data);
+    } catch (Exception $e) {
+        return response()->json(['message' => $e->getMessage()], 500);
+    }
+}
+
 
 
     /**

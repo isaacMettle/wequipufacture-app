@@ -13,7 +13,7 @@ class Product extends Model {
         'name',
         'description', // Correction de 'desciption' à 'description'
         'price',
-        'category_id',
+        /*'category_id',*/
     ];
 
     protected $table = 'products';
@@ -47,10 +47,10 @@ class Product extends Model {
         $pdt->name = $data['name'];
         $pdt->description = $data['description'];
         $pdt->price = $data['price'];
-        $pdt->category_id = $data['category_id'];
+    //    $pdt->category_id = $data['category_id'];
         $pdt->save();
 
-        return $pdt;
+        //return $pdt;
     }
 
     public static function UpdateProduct($data) {
@@ -58,7 +58,7 @@ class Product extends Model {
         $pdt->name = $data['name'];
         $pdt->description = $data['description'];
         $pdt->price = $data['price'];
-        $pdt->category_id = $data['category_id'];
+        /*$pdt->category_id = $data['category_id'];*/
         $pdt->save();
     }   
 

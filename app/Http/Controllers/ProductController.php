@@ -7,6 +7,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -17,7 +18,9 @@ class ProductController extends Controller
     {
         try {
             $products = Product::getAllProduct();
-            return ProductResource::collection($products);
+            $prod = ProductResource::collection($products);
+            return response()->json($prod);
+
         } catch (Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
@@ -36,19 +39,8 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:255',
             'price' => 'required|numeric',
-            'category_id' => 'required|exists:categories,id',
-        ], [
-            'name.required' => 'Le nom est requis.',
-            'name.string' => 'Le nom doit être une chaîne de caractères.',
-            'name.max' => 'Le nom ne doit pas dépasser 255 caractères.',
-            'description.required' => 'La description est requise.',
-            'description.string' => 'La description doit être une chaîne de caractères.',
-            'description.max' => 'La description ne doit pas dépasser 255 caractères.',
-            'price.required' => 'Le prix est requis.',
-            'price.numeric' => 'Le prix doit être numérique.',
-            'category_id.required' => 'L\'ID de la catégorie est requis.',
-            'category_id.exists' => 'L\'ID de la catégorie spécifiée n\'existe pas.',
-        ]);
+            // 'category_id' => 'required|exists:categories,id',
+        ], );
 
         if ($validated->fails()) {
             return response()->json(['errors' => $validated->errors()], 422);
@@ -59,7 +51,7 @@ class ProductController extends Controller
 
         return response()->json([
             'message' => 'Produit créé avec succès',
-            'product' => new ProductResource($product),
+            'product' => $product,
             'Status' => 201
         ]);
     }
@@ -75,20 +67,7 @@ class ProductController extends Controller
             'description' => 'required|string|max:255',
             'price' => 'required|numeric',
             'category_id' => 'required|exists:categories,id',
-        ], [
-            'id.required' => 'L\'ID est requis.',
-            'id.exists' => 'L\'ID spécifié n\'existe pas.',
-            'name.required' => 'Le nom est requis.',
-            'name.string' => 'Le nom doit être une chaîne de caractères.',
-            'name.max' => 'Le nom ne doit pas dépasser 255 caractères.',
-            'description.required' => 'La description est requise.',
-            'description.string' => 'La description doit être une chaîne de caractères.',
-            'description.max' => 'La description ne doit pas dépasser 255 caractères.',
-            'price.required' => 'Le prix est requis.',
-            'price.numeric' => 'Le prix doit être numérique.',
-            'category_id.required' => 'L\'ID de la catégorie est requis.',
-            'category_id.exists' => 'L\'ID de la catégorie spécifiée n\'existe pas.',
-        ]);
+        ], );
 
         if ($validated->fails()) {
             return response()->json(['errors' => $validated->errors()], 422);
@@ -127,6 +106,21 @@ class ProductController extends Controller
                 'message' => $e->getMessage(),
                 'Status' => 'Fail'
             ]);
+        }
+    }
+
+    public function getProductsWithCategoryInfo()
+    {
+        try {
+            // Join invoices with clients
+            $data = DB::table('products')
+                ->join('categories', 'products.category_id', '=', 'categories.id')
+                ->select('products.id as product_id', 'categories.name as category_name', 'products.name', 'products.description', 'products.price')
+                ->get();
+    
+            return response()->json($data);
+        } catch (Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 }

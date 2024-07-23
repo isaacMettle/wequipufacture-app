@@ -20,7 +20,7 @@ class RoleFactory extends Factory
          $model = Role::class;
 
          return [
-            'name' => $this->faker->unique()->randomElement(['Admin', 'Chef Comptable', 'Comptable']),
+            'name' => $this->faker->randomElement(['Admin', 'Chef Comptable', 'Comptable']),
         ];
     
     }

@@ -33,10 +33,11 @@ Route::delete('/deleteCategories/{id}', [CategoryController::class, 'delete']);
 
 
 //les routes pour le modele Client
-Route::get('/listClient',[ClientController::class,'index']);
-Route::post('/AddClients',[ClientController::class,'create']);
-Route::put('/updateClients/{id}',[ClientController::class,'update']);
-Route::delete('/deleteClients/{id}',[ClientController::class,'delete']);
+
+Route::get('/listClient', [ClientController::class, 'index']);
+Route::post('/AddClients', [ClientController::class, 'create']);
+Route::put('/updateClients/{id}', [ClientController::class, 'update']);
+Route::delete('/deleteClients/{id}', [ClientController::class, 'delete']);
 
 
 //les routes pour le modele Invoice
@@ -84,6 +85,8 @@ Route::post('/AddRoles',[RoleController::class,'create']);
 Route::put('/updateRoles/{id}',[RoleController::class,'update']);
 Route::delete('/deleteRoles/{id}',[RoleController::class,'delete']);
 
+Route::get('/invoices-with-client-info', [InvoiceController::class, 'getInvoicesWithClientInfo']);
+Route::get('/products-with-category-info', [ProductController::class, 'getProductsWithCategoryInfo']);
 
 
 
