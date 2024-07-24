@@ -38,6 +38,7 @@ Route::get('/listClient', [ClientController::class, 'index']);
 Route::post('/AddClients', [ClientController::class, 'create']);
 Route::put('/updateClients/{id}', [ClientController::class, 'update']);
 Route::delete('/deleteClients/{id}', [ClientController::class, 'delete']);
+Route::get('/clients/{id}', [ClientController::class, 'show']);
 
 
 //les routes pour le modele Invoice

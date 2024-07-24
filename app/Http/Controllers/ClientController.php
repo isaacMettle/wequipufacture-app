@@ -28,6 +28,17 @@ class ClientController extends Controller
         }
     }
 
+    public function show($id)
+    {
+        $client = Client::find($id);
+
+        if (!$client) {
+            return response()->json(['message' => 'Client not found'], 404);
+        }
+
+        return response()->json($client);
+    }
+
     public function create(Request $request)
     {
         $validated = Validator::make($request->all(), [
