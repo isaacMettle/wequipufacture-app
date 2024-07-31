@@ -1,49 +1,41 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
-class Role extends Model {
+
+class Role extends Model
+{
     use HasFactory, Notifiable;
 
-    protected $fillable = [
-        
-        'name',
-        
-    ];
+    protected $fillable = ['name'];
 
-    protected $table='roles';
-
-    protected $primaryKey='id';
-
-    protected $keytype='int';
-
-    public $timestamp=false;
-    public function users() {
-        return $this->hasMany(User::class);
-    }
-
-    public function permissions() {
-        return $this->belongsToMany(Permission::class);
-    }
-
-    public static function getAllrole(){
-
-        return Role::all();
-    }
-
-    public static function CreateRole($data)
+    public function users()
     {
-        $role=new Self();
-        $role->name=$data->name;
+        return $this->belongsToMany(User::class, 'role_user');
+    }
+
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class, 'permission_role');
+    }
+
+    public static function getAllRoles()
+    {
+        return self::all();
+    }
+
+    public static function createRole($data)
+    {
+        $role = new self();
+        $role->name = $data->name;
         $role->save();
     }
 
     public static function updateRole($data)
     {
-        $role= Role::find($data->id);   
+        $role = self::find($data->id);
         $role->name = $data->name;
         $role->save();
         return $role;
@@ -51,7 +43,7 @@ class Role extends Model {
 
     public static function deleteRole($id)
     {
-        $role= Role::find($id);
+        $role = self::find($id);
         $role->delete();
     }
 }

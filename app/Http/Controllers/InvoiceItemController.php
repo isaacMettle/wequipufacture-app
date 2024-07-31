@@ -34,14 +34,15 @@ class InvoiceItemController extends Controller
     {
         // Valider les données
         $validated = Validator::make($request->all(), [
+            'invoice_id' => 'required|exists:invoices,id',
             'description' => 'required|string|max:255',
             'prix_unitaire' => 'required|numeric',
             'tva' => 'required|numeric',
-            'invoice_id' => 'required|exists:invoices,id',
-            'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer',
             'total' => 'required|numeric',
         ], [
+            'invoice_id.required' => 'L\'ID de facture est requis.',
+            'invoice_id.exists' => 'L\'ID de facture n\'existe pas.',
             'description.required' => 'La description est requise.',
             'description.string' => 'La description doit être une chaîne de caractères.',
             'description.max' => 'La description ne doit pas dépasser 255 caractères.',
@@ -49,10 +50,6 @@ class InvoiceItemController extends Controller
             'prix_unitaire.numeric' => 'Le prix unitaire doit être numérique.',
             'tva.required' => 'La TVA est requise.',
             'tva.numeric' => 'La TVA doit être numérique.',
-            'invoice_id.required' => 'L\'ID de la facture est requis.',
-            'invoice_id.exists' => 'L\'ID de la facture spécifiée n\'existe pas.',
-            'product_id.required' => 'L\'ID du produit est requis.',
-            'product_id.exists' => 'L\'ID du produit spécifié n\'existe pas.',
             'quantity.required' => 'La quantité est requise.',
             'quantity.integer' => 'La quantité doit être un entier.',
             'total.required' => 'Le total est requis.',
@@ -78,8 +75,6 @@ class InvoiceItemController extends Controller
             'description' => 'required|string|max:255',
             'prix_unitaire' => 'required|numeric',
             'tva' => 'required|numeric',
-            'invoice_id' => 'required|exists:invoices,id',
-            'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer',
             'total' => 'required|numeric',
         ], [
@@ -92,10 +87,6 @@ class InvoiceItemController extends Controller
             'prix_unitaire.numeric' => 'Le prix unitaire doit être numérique.',
             'tva.required' => 'La TVA est requise.',
             'tva.numeric' => 'La TVA doit être numérique.',
-            'invoice_id.required' => 'L\'ID de la facture est requis.',
-            'invoice_id.exists' => 'L\'ID de la facture spécifiée n\'existe pas.',
-            'product_id.required' => 'L\'ID du produit est requis.',
-            'product_id.exists' => 'L\'ID du produit spécifié n\'existe pas.',
             'quantity.required' => 'La quantité est requise.',
             'quantity.integer' => 'La quantité doit être un entier.',
             'total.required' => 'Le total est requis.',

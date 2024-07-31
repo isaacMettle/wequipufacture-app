@@ -39,7 +39,7 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:255',
             'price' => 'required|numeric',
-            // 'category_id' => 'required|exists:categories,id',
+            'category_id' => 'required|exists:categories,id',
         ], );
 
         if ($validated->fails()) {
@@ -62,11 +62,11 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $validated = Validator::make($request->all(), [
-            'id' => 'required|exists:products,id',
+            
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:255',
             'price' => 'required|numeric',
-            'category_id' => 'required|exists:categories,id',
+            
         ], );
 
         if ($validated->fails()) {
@@ -74,7 +74,7 @@ class ProductController extends Controller
         }
 
         // Mettre à jour le produit
-        $product = Product::UpdateProduct($validated->validated());
+        $product->update($validated->validated());
 
         return response()->json([
             'message' => 'Produit mis à jour avec succès',

@@ -39,11 +39,10 @@ class InvoiceItem extends Model {
 
     public static function CreateInvoiceItem($data) {
         $pdt = new self();
+        $pdt->invoice_id = $data['invoice_id'];
         $pdt->description = $data['description'];
         $pdt->prix_unitaire = $data['prix_unitaire'];
         $pdt->tva = $data['tva'];
-        $pdt->invoice_id = $data['invoice_id'];
-        $pdt->product_id = $data['product_id'];
         $pdt->quantity = $data['quantity'];
         $pdt->total = $data['total'];
         $pdt->save();
@@ -56,8 +55,6 @@ class InvoiceItem extends Model {
         $pdt->description = $data['description'];
         $pdt->prix_unitaire = $data['prix_unitaire'];
         $pdt->tva = $data['tva'];
-        $pdt->invoice_id = $data['invoice_id'];
-        $pdt->product_id = $data['product_id'];
         $pdt->quantity = $data['quantity'];
         $pdt->total = $data['total'];
         $pdt->save();

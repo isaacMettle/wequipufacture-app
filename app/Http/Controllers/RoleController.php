@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use App\Http\Resources\RoleResource;
+use Exception;
 class RoleController extends Controller
 {
     /**
@@ -12,8 +13,16 @@ class RoleController extends Controller
      */
     public function index()
     {
-        $roles = Role::getAllrole();
-        return RoleResource::collection($roles);
+       try{
+        $roles = Role::getAllRoles();
+        $rol= RoleResource::collection($roles);
+        return response()->json($rol);
+       }catch(Exception $e) {
+        return response()->json([
+            'message' => $e->getMessage(),
+            'Status' => 'Fail'
+        ]);
+       }
     }
 
     /**
@@ -63,5 +72,15 @@ class RoleController extends Controller
     public function delete($id) {
         $deleted = Role::deleteRole($id);
         return response()->json(['success' => $deleted]);
+    }
+
+    public function assignPermission(Request $request, $roleId)
+    {
+        $role = Role::findOrFail($roleId);
+        $permissionId = $request->input('permission_id');
+
+        $role->permissions()->attach($permissionId);
+
+        return redirect()->back()->with('success', 'Permission assigned successfully.');
     }
 }

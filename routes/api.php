@@ -11,6 +11,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\LoginController;
+
 
 /*Route::get('/user', function (Request $request) {
     return $request->user();
@@ -88,8 +90,9 @@ Route::delete('/deleteRoles/{id}',[RoleController::class,'delete']);
 
 Route::get('/invoices-with-client-info', [InvoiceController::class, 'getInvoicesWithClientInfo']);
 Route::get('/products-with-category-info', [ProductController::class, 'getProductsWithCategoryInfo']);
+Route::get('/Invoice-Invoice_item-ClientInfo', [InvoiceController::class, 'getInvoiceInvoice_itemClientInfo']);
 
-
+Route::post('/login', [LoginController::class, 'login']);
 
 
 

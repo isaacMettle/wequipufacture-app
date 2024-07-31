@@ -7,8 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 class Permission extends Model {
     use HasFactory, Notifiable;
+
+    protected $fillable = ['name'];
+
+
     public function roles() {
-        return $this->belongsToMany(Role::class);
+        return $this->belongsToMany(Role::class , 'permission_role');
     }
 }
 

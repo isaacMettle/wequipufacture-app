@@ -21,7 +21,11 @@ class InvoiceResource extends JsonResource
             'date' => $this->date,
             'total'=> $this->total,
             'status' => $this->status,
-            'approbation' => $this->approbation
+            'invoice_number' => $this->invoice_number,
+            'due_date' => $this->due_date,
+            'note' => $this->note,
+            'email_text' => $this->email_text
+
         ];
     }
 }

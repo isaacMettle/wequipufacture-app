@@ -14,8 +14,12 @@ class Invoice extends Model {
         'user_id',
         'date',
         'total',
-        'statut',        
-        'approbation',
+        'statut', 
+        'approbation',       
+        'invoice_number',
+        'due_date',
+        'note',
+        'email_text',
     ];
 
     protected $table = 'invoices';
@@ -35,32 +39,34 @@ class Invoice extends Model {
         return $this->hasMany(InvoiceItem::class);
     }
 
-    public static function getAllInvoice() { 
+    public static function getAllInvoice () { 
         return Invoice::all();
     }
 
-    public static function CreateInvoice($data)
-    {
-        $invoice = new self();
-        $invoice->client_id = $data['client_id'];
-        $invoice->user_id = $data['user_id'];
-        $invoice->date = $data['date'];
-        $invoice->total = $data['total'];
-        $invoice->statut = $data['statut'];
-        $invoice->approbation = $data['approbation'];
-        $invoice->save();
-        return $invoice;
-    }
+    public static function create($data)
+{
+    //dd($data); // Ajoutez ceci pour déboguer les données reçues
+    $invoice = new self();
+    $invoice->client_id = $data['client_id'];
+    $invoice->date = $data['date'];
+    $invoice->invoice_number = $data['invoice_number']; 
+    $invoice->due_date = $data['due_date'];     
+    $invoice->note = $data['note'];
+    $invoice->email_text = $data['email_text'];
+    $invoice->save();
+    return $invoice;
+}
+
 
     public static function UpdateInvoice($data)
     {
         $invoice = Invoice::find($data['id']);
-        $invoice->client_id = $data['client_id'];
-        $invoice->user_id = $data['user_id'];
+      
         $invoice->date = $data['date'];
-        $invoice->total = $data['total'];
-        $invoice->statut = $data['statut'];
-        $invoice->approbation = $data['approbation'];
+        $invoice->due_date = $data['due_date'];
+        $invoice->invoice_number = $data['invoice_number']; 
+        $invoice->note = $data['note'];
+        $invoice->email_text = $data['email_text']; 
         $invoice->save();
         return $invoice;
     }
