@@ -11,7 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::rename('roles', 'acteur');
+        Schema::create('counters', function (Blueprint $table) {
+            $table->id();
+            $table->string('Key')->unique();
+            $table->string('prefix');
+            $table->string('value');
+            $table->timestamps();
+        });
     }
 
     /**
@@ -19,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::rename('new_roles_name', 'roles');
+        Schema::dropIfExists('counters');
     }
 };

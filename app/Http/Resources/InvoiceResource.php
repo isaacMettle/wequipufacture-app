@@ -24,7 +24,8 @@ class InvoiceResource extends JsonResource
             'invoice_number' => $this->invoice_number,
             'due_date' => $this->due_date,
             'note' => $this->note,
-            'email_text' => $this->email_text
+            'email_text' => $this->email_text,
+            'discount' => $this->discount,
 
         ];
     }

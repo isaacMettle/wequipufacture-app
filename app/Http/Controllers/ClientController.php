@@ -84,7 +84,7 @@ class ClientController extends Controller
         $client->update($validated->validated());
 
         return response()->json([
-            'message' => 'Client modifié avec succès',
+            'message' => 'Client creer avec succès',// je dois remettre modifie avec succes
             'client' => new ClientResource($client),
             'Status' => 200
         ]);

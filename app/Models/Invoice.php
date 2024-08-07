@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Http\Request;
 
 class Invoice extends Model {
     use HasFactory, Notifiable;
@@ -20,6 +21,8 @@ class Invoice extends Model {
         'due_date',
         'note',
         'email_text',
+        'sub_total',
+        'discount',
     ];
 
     protected $table = 'invoices';
@@ -40,34 +43,53 @@ class Invoice extends Model {
     }
 
     public static function getAllInvoice () { 
-        return Invoice::all();
+        return Invoice::with('client')->orderBy('id', 'desc')->get();
     }
 
     public static function create($data)
 {
-    //dd($data); // Ajoutez ceci pour déboguer les données reçues
+    // Utiliser la méthode only pour extraire uniquement les champs nécessaires
+    $data = collect($data)->only([
+        'client_id', 'date', 'invoice_number', 
+        'due_date', 'note', 'email_text', 'sub_total', 'total', 'discount'
+    ])->toArray();
+
+    // Définir les valeurs par défaut pour les champs optionnels
     $invoice = new self();
     $invoice->client_id = $data['client_id'];
     $invoice->date = $data['date'];
-    $invoice->invoice_number = $data['invoice_number']; 
-    $invoice->due_date = $data['due_date'];     
-    $invoice->note = $data['note'];
-    $invoice->email_text = $data['email_text'];
+    $invoice->invoice_number = $data['invoice_number'];
+    $invoice->due_date = $data['due_date'];
+    $invoice->note = $data['note'] ?? null;
+    $invoice->email_text = $data['email_text'] ?? null;
+    $invoice->sub_total = $data['sub_total'] ?? 0;
+    $invoice->total = $data['total'] ?? 0;
+    $invoice->discount = $data['discount'] ?? 0;
     $invoice->save();
+
     return $invoice;
 }
 
 
     public static function UpdateInvoice($data)
     {
+        $data = collect($data)->only([
+            'id', 'date', 'due_date', 'invoice_number', 'note', 'email_text', 'sub_total', 'total', 'discount'
+        ])->toArray();
+    
         $invoice = Invoice::find($data['id']);
-      
-        $invoice->date = $data['date'];
-        $invoice->due_date = $data['due_date'];
-        $invoice->invoice_number = $data['invoice_number']; 
-        $invoice->note = $data['note'];
-        $invoice->email_text = $data['email_text']; 
-        $invoice->save();
+        if ($invoice) {
+            $invoice->date = $data['date'];
+            $invoice->due_date = $data['due_date'];
+            $invoice->invoice_number = $data['invoice_number'];
+            $invoice->note = $data['note'] ?? null;
+            $invoice->email_text = $data['email_text'] ?? null;
+            $invoice->sub_total = $data['sub_total'] ?? 0;
+            $invoice->total = $data['total'] ?? 0;
+            $invoice->discount = $data['discount'] ?? 0;
+            $invoice->save();
+        }
+    
         return $invoice;
     }
 
@@ -79,4 +101,5 @@ class Invoice extends Model {
         }
         return false;
     }
+
 }

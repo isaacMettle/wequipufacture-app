@@ -17,12 +17,15 @@ class DatabaseSeeder extends Seeder
 
         // \App\Models\User::factory(50)->create();
         // \App\Models\Client::factory(50)->create();
-        // \App\Models\Product::factory(100)->create();
+        // \App\Models\Product::factory(3)->create();
         // \App\Models\Invoice::factory(200)->create();
         // \App\Models\InvoiceItem::factory(500)->create();
         // \App\Models\Payment::factory(200)->create();
         //  \App\Models\Role::factory(10)->create();
         //  \App\Models\Subscription::factory(10)->create();
+            
+        \App\Models\Counter::factory(1)->create();
+
 
     }
 }

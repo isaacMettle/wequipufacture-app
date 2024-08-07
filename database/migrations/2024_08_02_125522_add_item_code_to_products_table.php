@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::rename('roles', 'acteur');
+        Schema::table('products', function (Blueprint $table) {
+            $table->string('item_code')->nullable()->after('id');
+        });
     }
 
     /**
@@ -19,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::rename('new_roles_name', 'roles');
+        Schema::table('products', function (Blueprint $table) {
+            $table->dropColumn('item_code');
+        });
     }
 };

@@ -13,6 +13,8 @@ class Product extends Model {
         'name',
         'description', // Correction de 'desciption' à 'description'
         'price',
+        'quantity',
+        'total',
         'category_id',
     ];
 
@@ -38,14 +40,15 @@ class Product extends Model {
     }
 
     public static function getAllProduct() {
-        return Product::all();
+        return Product::orderBy('id', 'DESC')->get();
     }
 
     public static function CreateProduct($data)
     {
         $pdt = new self();
         $pdt->name = $data['name'];
-        $pdt->description = $data['description'];
+        $pdt->quantity = $data['quantity'];
+        $pdt->total = $data['total'];
         $pdt->price = $data['price'];
         $pdt->category_id = $data['category_id'];
         $pdt->save();
@@ -56,6 +59,8 @@ class Product extends Model {
     public static function UpdateProduct($data) {
         $pdt = Product::find($data->id);
         $pdt->name = $data->name;
+        $pdt->quantity = $data->quantity;
+        $pdt->total = $data->total;
         $pdt->description = $data->description;
         $pdt->price = $data->price;
         /*$pdt->category_id = $data['category_id'];*/

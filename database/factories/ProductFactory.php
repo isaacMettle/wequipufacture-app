@@ -11,6 +11,7 @@ class ProductFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
+            'item_code' => 'IC-'.$this->faker->numberBetween(1, 100),
             'description' => $this->faker->sentence(),
             'price' => $this->faker->numberBetween(100, 1000),
             'category_id' => Category::inRandomOrder()->first()?->id ?? function() {

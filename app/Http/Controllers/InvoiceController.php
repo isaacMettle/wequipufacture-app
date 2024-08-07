@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invoice;
+use App\Models\Counter;
 use Illuminate\Http\Request;
 use App\Http\Resources\InvoiceResource;
+use App\Models\InvoiceItem;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use App\Mail\InvoiceMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 
 use Exception;
@@ -18,7 +22,12 @@ class InvoiceController extends Controller
      */
     public function index(Request $request)
     {
-        try{
+
+        $invoices=Invoice::getAllInvoice ();
+        return response()->json([
+            'invoices' => $invoices
+        ],200);
+        /*try{
             $list=Invoice::getAllInvoice ();
             if($list->isNotEmpty()){
                 $resp = InvoiceResource::collection($list);
@@ -31,7 +40,7 @@ class InvoiceController extends Controller
                 'message' => $e->getMessage(),
                 'Status' => 'Fail'
             ], );
-        }
+        }*/
        /* try {
             // Valider les données si nécessaire
             $validated = $request->validate([
@@ -193,4 +202,230 @@ public function update(Request $request, Invoice $invoice)
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
+
+    public static function getAllInvoice () { 
+        return Invoice::with('client')->orderBy('id', 'desc')->get();
+    }
+   
+    public function search_invoice(Request $request)
+{
+    $search = $request->get('s');
+    if ($search != null) {
+        // Assurez-vous que 'client' fait référence à une relation ou à une colonne appropriée
+        $invoices = Invoice::whereHas('client', function($query) use ($search) {
+            $query->where('name', 'like', '%' . $search . '%');
+        })->get();
+
+        return response()->json([
+            'invoices' => $invoices
+        ], 200);
+    } else {
+        return $this->getAllInvoice();
+    }
+}
+
+
+    public function create_invoice(Request $request){
+        
+        $counter= Counter::where('key','invoice')->first();
+        $random = Counter::where('key','invoice')->first();
+
+
+        $invoice=Invoice::orderBy('id','DESC')->first();
+
+        if( $invoice){
+            $invoice =  $invoice->id+1;
+            $counters =  $counter->value+ $invoice;
+
+        }else{
+            $counters =  $counter->value;
+        }
+
+        $formData =[
+            'invoice_number'=>$counter -> prefix.$counters,
+            'client_id' => null,
+            'client' => null,
+            'date'=> date('Y-m-d'),
+            'due_date'=> null,
+            'discount'=> 0,
+            'note'=> null,
+            'email_text'=> 'voici votre facture', 
+
+            'items'=> [
+                [
+                    'product_id'=>null,
+                    'product'=>null,
+                    'description'=>null,
+                    'price'=> 0,
+                    'quatity'=>1
+                ]
+            ]
+        ];
+        return response()->json($formData);
+    }
+
+
+    
+    public function add_invoice(Request $request)
+    {
+        // Définir les règles de validation
+        $validator = Validator::make($request->all(), [
+            'client_id' => 'required|integer|exists:clients,id',
+            'date' => 'required|date',
+            'due_date' => 'required|date|after_or_equal:date',
+            'note' => 'nullable|string',
+            'sub_total' => 'required|numeric|min:0',
+            'total' => 'required|numeric|min:0',
+            'discount' => 'nullable|numeric|min:0',
+            'invoice_number' => 'required|string|unique:invoices,invoice_number',
+            'invoice_item' => 'required|json',
+        ]);
+    
+        // Vérifier si la validation échoue
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+    
+        $invoiceItems = json_decode($request->input('invoice_item'), true); // Decode JSON string to array
+    
+        // Vérifier que chaque article contient les clés nécessaires
+        foreach ($invoiceItems as $item) {
+            if (!isset($item['product_id']) || !isset($item['price']) || !isset($item['quantity'])) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Each invoice item must contain product_id, price, and quantity.'
+                ], 422);
+            }
+        }
+    
+        $invoiceData = $request->only([
+            'client_id', 'date', 'due_date', 'note',
+            'sub_total', 'total', 'discount', 'invoice_number'
+        ]);
+    
+        $invoice = Invoice::create($invoiceData);
+    
+        foreach ($invoiceItems as $item) {
+            $itemData = [
+                'invoice_id' => $invoice->id,
+                'product_id' => $item['product_id'],
+                'prix_unitaire' => $item['price'],
+                'quantity' => $item['quantity'],
+            ];
+    
+            InvoiceItem::create($itemData);
+        }
+    
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Invoice created successfully.'
+        ], 201);
+    }
+    
+    public function show_invoice($id){
+        $invoice = Invoice::with(['client','items.product'])->find($id);
+        return response()->json([
+            'invoice' => $invoice
+        ],200);
+    }
+
+
+    public function edit_invoice($id){
+        $invoice = Invoice::with(['client','items.product'])->find($id);
+        return response()->json([
+            'invoice' => $invoice
+        ],200);
+    }
+
+    public function delete_invoice_items($id){
+        $invoiceitem = InvoiceItem::findOrfail($id);
+        $invoiceitem -> delete();
+    }
+
+    public function updateApprobation(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'approbation' => 'required|in:valide,non valide',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $invoice = Invoice::find($id);
+
+        if (!$invoice) {
+            return response()->json(['message' => 'Facture non trouvée'], 404);
+        }
+
+        $invoice->approbation = $request->approbation;
+        $invoice->save();
+
+        return response()->json([
+            'message' => 'Approbation mise à jour avec succès',
+            'invoice' => $invoice
+        ], 200);
+    }
+
+  
+
+public function sendInvoice($invoiceId)
+{
+    $invoice = Invoice::find($invoiceId);
+
+    if ($invoice) {
+        Mail::to($invoice->client->email)->send(new InvoiceMail($invoice));
+        return response()->json(['message' => 'Invoice sent successfully.']);
+    }
+
+    return response()->json(['message' => 'Invoice not found.'], 404);
+}
+
+
+   /* public function updateInvoiceDetails(Request $request, $id)
+{
+    $validator = Validator::make($request->all(), [
+        'date' => 'required|date',
+        'due_date' => 'required|date|after_or_equal:date',
+        'note' => 'nullable|string',
+        'email_text' => 'nullable|string',
+        'total' => 'required|numeric|min:0',
+    ], [
+        'date.required' => 'La date est requise.',
+        'date.date' => 'La date doit être une date valide.',
+        'due_date.required' => 'La date d\'échéance est requise.',
+        'due_date.date' => 'La date d\'échéance doit être une date valide.',
+        'note.string' => 'La note doit être valide.',
+        'email_text.string' => 'Le texte de l\'email doit être valide.',
+        'total.required' => 'Le total est requis.',
+        'total.numeric' => 'Le total doit être un nombre.',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
+
+    $invoice = Invoice::find($id);
+
+    if (!$invoice) {
+        return response()->json(['message' => 'Facture non trouvée'], 404);
+    }
+
+    $invoice->update($request->only([
+        'date', 'due_date', 'note', 'email_text', 'total'
+    ]));
+
+    return response()->json([
+        'message' => 'Facture mise à jour avec succès',
+        'invoice' => $invoice
+    ], 200);
+}*/
+
+   
+
+
+    
 }

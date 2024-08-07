@@ -11,7 +11,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\LoginController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+
 
 
 /*Route::get('/user', function (Request $request) {
@@ -48,6 +50,18 @@ Route::get('/listInvoice',[InvoiceController::class,'index']);
 Route::post('/AddInvoices',[InvoiceController::class,'create']);
 Route::put('/updateInvoices/{id}',[InvoiceController::class,'update']);
 Route::delete('/deleteInvoices/{id}',[InvoiceController::class,'delete']);
+Route::get('/searchInvoice',[InvoiceController::class,'search_invoice']);
+Route::get('/create_invoice',[InvoiceController::class,'create_invoice']);
+Route::post('/add_invoice',[InvoiceController::class,'add_invoice']);
+Route::get('/show_invoice/{id}',[InvoiceController::class,'show_invoice']);
+Route::put('/updateInvoice/{id}', [InvoiceController::class, 'updateApprobation']);
+Route::put('/update-invoice/{id}', [InvoiceController::class, 'updateInvoiceDetails']);
+Route::get('/edit_invoice/{id}',[InvoiceController::class,'edit_invoice']);//route de la fonction qui me permet de modifier une facture
+Route::get('/delete_invoice_items/{id}',[InvoiceController::class,'delete_invoice_items']); 
+Route::post('/send_invoice/{id}', [InvoiceController::class, 'sendInvoice']);
+
+
+
 
 
 //les routes pour le modele Product
@@ -92,7 +106,10 @@ Route::get('/invoices-with-client-info', [InvoiceController::class, 'getInvoices
 Route::get('/products-with-category-info', [ProductController::class, 'getProductsWithCategoryInfo']);
 Route::get('/Invoice-Invoice_item-ClientInfo', [InvoiceController::class, 'getInvoiceInvoice_itemClientInfo']);
 
-Route::post('/login', [LoginController::class, 'login']);
+//login 
+Route::post('login', [LoginController::class, 'login']);
+Route::post('register', [RegisterController::class, 'register']);
+Route::post('logout', [LoginController::class, 'logout']);
 
 
 

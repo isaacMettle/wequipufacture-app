@@ -37,7 +37,7 @@ class Client extends Model {
     }
 
     public static function getAllClient() {
-        return Client::all();
+        return Client::orderBy('id','DESC')->get();
     }
 
     public static function CreateClient($data)
