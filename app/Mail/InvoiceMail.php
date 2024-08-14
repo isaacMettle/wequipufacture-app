@@ -2,27 +2,29 @@
 
 namespace App\Mail;
 
-use App\Models\Invoice;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Barryvdh\DomPDF\PDF; // Assuming you're using DomPDF
 
 class InvoiceMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $invoice;
+    protected $pdf;
+
     /**
      * Create a new message instance.
      */
-
-     public $invoice ;
-
-    public function __construct(Invoice $invoice )
+    public function __construct($invoice, PDF $pdf)
     {
         $this->invoice = $invoice;
+        $this->pdf = $pdf;
     }
 
     /**
@@ -31,7 +33,7 @@ class InvoiceMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Facture',
+            subject: 'Votre facture'
         );
     }
 
@@ -41,9 +43,9 @@ class InvoiceMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'email.invoice',
+            view: 'emails.invoice',
             with: [
-                "facture"=>$this->invoice,
+                'invoice' => $this->invoice,
             ]
         );
     }
@@ -51,10 +53,13 @@ class InvoiceMail extends Mailable
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return array
      */
     public function attachments(): array
     {
-        return [];
+        return [
+            Attachment::fromData(fn() => $this->pdf->output(), 'invoice.pdf')
+                ->withMime('application/pdf')
+        ];
     }
 }

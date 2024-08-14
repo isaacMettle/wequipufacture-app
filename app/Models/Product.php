@@ -47,26 +47,54 @@ class Product extends Model {
     {
         $pdt = new self();
         $pdt->name = $data['name'];
-        $pdt->quantity = $data['quantity'];
-        $pdt->total = $data['total'];
+    
+        // Vérifier si les champs 'quantity' et 'total' existent dans les données avant de les assigner
+        $pdt->quantity = $data['quantity'] ?? null;
+        $pdt->total = $data['total'] ?? null;
+    
+        // Assigner la description s'il existe ou la laisser null sinon
+        $pdt->description = $data['description'] ?? null;
+    
         $pdt->price = $data['price'];
         $pdt->category_id = $data['category_id'];
         $pdt->save();
-
+    
         return $pdt;
     }
+    
 
     public static function UpdateProduct($data) {
         $pdt = Product::find($data->id);
-        $pdt->name = $data->name;
-        $pdt->quantity = $data->quantity;
-        $pdt->total = $data->total;
-        $pdt->description = $data->description;
-        $pdt->price = $data->price;
-        /*$pdt->category_id = $data['category_id'];*/
+    
+        // Mettre à jour uniquement si les champs sont fournis
+        if (isset($data->name)) {
+            $pdt->name = $data->name;
+        }
+    
+        if (isset($data->quantity)) {
+            $pdt->quantity = $data->quantity;
+        }
+    
+        if (isset($data->total)) {
+            $pdt->total = $data->total;
+        }
+    
+        if (isset($data->description)) {
+            $pdt->description = $data->description;
+        }
+    
+        if (isset($data->price)) {
+            $pdt->price = $data->price;
+        }
+    
+        /*if (isset($data['category_id'])) {
+            $pdt->category_id = $data['category_id'];
+        }*/
+    
         $pdt->save();
         return $pdt;
-    }   
+    }
+    
 
     public static function deleteProduct($id) {
         $product = Product::find($id);

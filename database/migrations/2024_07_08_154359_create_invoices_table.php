@@ -15,8 +15,15 @@ return new class extends Migration
             $table->id();
             $table->foreignId('client_id')->nullable()->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
-            $table->date('date');
-            $table->decimal('total', 10, 2);
+            $table->string('invoice_number')->nullable()->change();
+            $table->date('due_date')->nullable()->change();
+            $table->text('note')->nullable()->change();
+            $table->text('email_text')->nullable()->change();
+            $table->date('date')->nullable()->change();
+            $table->decimal('total', 10, 2)->nullable()->change();
+            $table->double('sub_total', 15, 2)->default(0.00)->after('total');
+            $table->enum('statut', ['payer', 'non payé'])->default('non payé')->nullable()->change();
+            $table->enum('approbation', ['valide', 'non valide'])->default('non valide')->nullable()->change();
             $table->timestamps();
         });
         

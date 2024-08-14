@@ -59,6 +59,11 @@ Route::put('/update-invoice/{id}', [InvoiceController::class, 'updateInvoiceDeta
 Route::get('/edit_invoice/{id}',[InvoiceController::class,'edit_invoice']);//route de la fonction qui me permet de modifier une facture
 Route::get('/delete_invoice_items/{id}',[InvoiceController::class,'delete_invoice_items']); 
 Route::post('/send_invoice/{id}', [InvoiceController::class, 'sendInvoice']);
+Route::get('/dashboard-stats', [InvoiceController::class, 'dashboardStats']);
+Route::patch('update_invoice_status/{id}', [InvoiceController::class, 'updateStatus']);
+Route::get('recent-invoices', [InvoiceController::class, 'getRecentInvoices']);
+
+
 
 
 

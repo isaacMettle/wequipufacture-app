@@ -7,9 +7,11 @@ use App\Models\Counter;
 use Illuminate\Http\Request;
 use App\Http\Resources\InvoiceResource;
 use App\Models\InvoiceItem;
+use App\Models\Client;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Mail\InvoiceMail;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 
@@ -348,7 +350,7 @@ public function update(Request $request, Invoice $invoice)
     public function updateApprobation(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'approbation' => 'required|in:valide,non valide',
+            'approbation' => 'required|in:en attente,approuver,non approuver',
         ]);
 
         if ($validator->fails()) {
@@ -372,12 +374,17 @@ public function update(Request $request, Invoice $invoice)
 
   
 
-public function sendInvoice($invoiceId)
+    public function sendInvoice($invoiceId)
 {
-    $invoice = Invoice::find($invoiceId);
+    $invoice = Invoice::with('items.product', 'client')->find($invoiceId);
 
     if ($invoice) {
-        Mail::to($invoice->client->email)->send(new InvoiceMail($invoice));
+        // Generate the PDF from the view
+        $pdf = Pdf::loadView('invoices.pdf', compact('invoice'));
+
+        // Send the email with the PDF attached
+        Mail::to($invoice->client->email)->send(new InvoiceMail($invoice, $pdf));
+
         return response()->json(['message' => 'Invoice sent successfully.']);
     }
 
@@ -385,44 +392,59 @@ public function sendInvoice($invoiceId)
 }
 
 
-   /* public function updateInvoiceDetails(Request $request, $id)
+public function dashboardStats()
+    {
+        // Nombre total de factures créées
+        $totalInvoices = Invoice::count();
+
+        // Nombre total de clients enregistrés
+        $totalClients = Client::count();
+
+        // Nombre total de factures envoyées
+        $sentInvoices = Invoice::where('statut', 'envoyé')->count();
+
+        // Total du revenu
+        $totalRevenue = Invoice::sum('total');
+
+        // Retourner les données en JSON
+        return response()->json([
+            'totalInvoices' => $totalInvoices,
+            'totalClients' => $totalClients,
+            'sentInvoices' => $sentInvoices,
+            'totalRevenue' => $totalRevenue,
+        ]);
+    }
+    
+
+    public function updateStatus(Request $request, $id)
 {
-    $validator = Validator::make($request->all(), [
-        'date' => 'required|date',
-        'due_date' => 'required|date|after_or_equal:date',
-        'note' => 'nullable|string',
-        'email_text' => 'nullable|string',
-        'total' => 'required|numeric|min:0',
-    ], [
-        'date.required' => 'La date est requise.',
-        'date.date' => 'La date doit être une date valide.',
-        'due_date.required' => 'La date d\'échéance est requise.',
-        'due_date.date' => 'La date d\'échéance doit être une date valide.',
-        'note.string' => 'La note doit être valide.',
-        'email_text.string' => 'Le texte de l\'email doit être valide.',
-        'total.required' => 'Le total est requis.',
-        'total.numeric' => 'Le total doit être un nombre.',
-    ]);
+    $invoice = Invoice::findOrFail($id);
+    $invoice->statut = $request->input('statut');
+    $invoice->save();
 
-    if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()], 422);
-    }
+    return response()->json(['message' => 'Status updated successfully']);
+}
 
-    $invoice = Invoice::find($id);
+public function getRecentInvoices(Request $request)
+{
+    // Définir la limite optionnelle pour le nombre de factures à récupérer
+    $limit = $request->input('limit', 10); // Par défaut, on récupère 10 factures
 
-    if (!$invoice) {
-        return response()->json(['message' => 'Facture non trouvée'], 404);
-    }
+    // Récupérer les factures récentes avec les informations du client
+    $recentInvoices = Invoice::with('client') // Assuming 'client' is the relationship method in Invoice model
+                            ->orderBy('date', 'desc')
+                            ->take($limit)
+                            ->get();
 
-    $invoice->update($request->only([
-        'date', 'due_date', 'note', 'email_text', 'total'
-    ]));
-
+    // Retourner les factures avec les informations du client sous forme de JSON
     return response()->json([
-        'message' => 'Facture mise à jour avec succès',
-        'invoice' => $invoice
+        'recentInvoices' => $recentInvoices
     ], 200);
-}*/
+}
+
+
+
+   
 
    
 
