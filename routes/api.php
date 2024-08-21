@@ -11,8 +11,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\AdminController ;
+use App\Http\Controllers\AuthController ;
 
 
 
@@ -30,6 +30,9 @@ Route::prefix('api')->group(function () {
 });
 
 //les routes pour le modele category
+
+
+
 Route::get('/listCategories',[CategoryController::class,'index']);
 Route::post('/AddCategories',[CategoryController::class,'create']);
 Route::put('/updateCategories/{id}',[CategoryController::class,'update']);
@@ -45,9 +48,14 @@ Route::delete('/deleteClients/{id}', [ClientController::class, 'delete']);
 Route::get('/clients/{id}', [ClientController::class, 'show']);
 
 
-//les routes pour le modele Invoice
+Route::middleware(['auth:sanctum', 'role:Admin'])->group(function (){
+    Route::post('/AddInvoices',[InvoiceController::class,'create']);
+});
+
+
+
 Route::get('/listInvoice',[InvoiceController::class,'index']);
-Route::post('/AddInvoices',[InvoiceController::class,'create']);
+
 Route::put('/updateInvoices/{id}',[InvoiceController::class,'update']);
 Route::delete('/deleteInvoices/{id}',[InvoiceController::class,'delete']);
 Route::get('/searchInvoice',[InvoiceController::class,'search_invoice']);
@@ -62,6 +70,7 @@ Route::post('/send_invoice/{id}', [InvoiceController::class, 'sendInvoice']);
 Route::get('/dashboard-stats', [InvoiceController::class, 'dashboardStats']);
 Route::patch('update_invoice_status/{id}', [InvoiceController::class, 'updateStatus']);
 Route::get('recent-invoices', [InvoiceController::class, 'getRecentInvoices']);
+Route::post('/assign-admin-role', [AdminController::class, 'assignAdminRole']);
 
 
 
@@ -107,14 +116,13 @@ Route::post('/AddRoles',[RoleController::class,'create']);
 Route::put('/updateRoles/{id}',[RoleController::class,'update']);
 Route::delete('/deleteRoles/{id}',[RoleController::class,'delete']);
 
-Route::get('/invoices-with-client-info', [InvoiceController::class, 'getInvoicesWithClientInfo']);
-Route::get('/products-with-category-info', [ProductController::class, 'getProductsWithCategoryInfo']);
-Route::get('/Invoice-Invoice_item-ClientInfo', [InvoiceController::class, 'getInvoiceInvoice_itemClientInfo']);
+Route::post('/login',[AuthController::class,'login']);
 
-//login 
-Route::post('login', [LoginController::class, 'login']);
-Route::post('register', [RegisterController::class, 'register']);
-Route::post('logout', [LoginController::class, 'logout']);
+
+
+
+
+
 
 
 

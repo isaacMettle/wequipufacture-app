@@ -1,54 +1,41 @@
 <?php
 
+namespace Database\Seeders;
+
 use Illuminate\Database\Seeder;
-use App\Models\Role;
-use App\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
     public function run()
     {
-        // Create roles if they don't exist
-        $adminRole = Role::firstOrCreate(['name' => 'Admin']);
-        $comptableRole = Role::firstOrCreate(['name' => 'Comptable']);
-        $chefComptableRole = Role::firstOrCreate(['name' => 'Chef Comptable']);
+        // Créer les permissions
+        /*Permission::create(['name' => 'view invoices']);
+        Permission::create(['name' => 'create invoices']);
+        Permission::create(['name' => 'edit invoices']);
+        Permission::create(['name' => 'delete invoices']);
+        Permission::create(['name' => 'validate invoices']);
+        
 
-        // Create permissions if they don't exist
-        $createPermission = Permission::firstOrCreate(['name' => 'create']);
-        $editPermission =   Permission::firstOrCreate(['name' => 'edit']);
-        $deletePermission = Permission::firstOrCreate(['name' => 'delete']);
+        
+        $admin = Role::create(['name' => 'Admin']);
+        $admin->givePermissionTo(Permission::all());
 
-        // Assign permissions to roles (attach if not already attached)
-        if (!$adminRole->permissions()->where('name', 'create')->exists()) {
-            $adminRole->permissions()->attach($createPermission->id);
-        }
-        if (!$adminRole->permissions()->where('name', 'edit')->exists()) {
-            $adminRole->permissions()->attach($editPermission->id);
-        }
-        if (!$adminRole->permissions()->where('name', 'delete')->exists()) {
-            $adminRole->permissions()->attach($deletePermission->id);
-        }
+        $chefComptable = Role::create(['name' => 'Chef Comptable']);
+        $chefComptable->givePermissionTo(['view invoices', 'validate invoices', 'delete invoices']);
 
-        if (!$comptableRole->permissions()->where('name', 'create')->exists()) {
-            $comptableRole->permissions()->attach($createPermission->id);
-        }
-        if (!$comptableRole->permissions()->where('name', 'create')->exists()) {
-            $comptableRole->permissions()->attach($editPermission->id);
-        }
-        if (!$comptableRole->permissions()->where('name', 'create')->exists()) {
-            $comptableRole->permissions()->attach($deletePermission->id);
-        }
+        $comptable = Role::create(['name' => 'Comptable']);
+        $comptable->givePermissionTo(['view invoices', 'create invoices', 'edit invoices', 'delete invoices']);*/
 
-        // Assign permissions to Chef Comptable role as needed, similar to Admin or Comptable
-        // (example, if Chef Comptable has the same permissions as Admin)
-        /*if (!$chefComptableRole->permissions()->where('name', 'create')->exists()) {
-            $chefComptableRole->permissions()->attach($createPermission->id);
+        Permission::create(['name' => 'pay invoices']);
+        $client = Role::create(['name' => 'Client']);
+        $client->givePermissionTo(['pay invoices']);
+
+        // Exemple : assigner le rôle Admin à un utilisateur spécifique
+        /*$user = \App\Models\User::find(1); // Remplace 1 par l'ID de l'utilisateur que tu souhaites définir comme Admin
+        if ($user) {
+            $user->assignRole($admin);
         }*/
-        if (!$chefComptableRole->permissions()->where('name', 'edit')->exists()) {
-            $chefComptableRole->permissions()->attach($editPermission->id);
-        }
-        if (!$chefComptableRole->permissions()->where('name', 'delete')->exists()) {
-            $chefComptableRole->permissions()->attach($deletePermission->id);
-        }
     }
 }

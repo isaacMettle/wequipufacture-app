@@ -2,19 +2,22 @@
 
 namespace App\Models;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Models\Role;
 
-class User extends Authenticatable implements MustVerifyEmail{
-    use HasFactory, Notifiable;
+class User extends Authenticatable {
+    use HasFactory, Notifiable , HasRoles, HasApiTokens;
 
     protected $fillable = [
         'name',
         'email',
         'password',
-        'role_id'
+        //'role_id'
         // Ajouté pour permettre l'assignation de role_id
     ];
 
@@ -49,12 +52,19 @@ class User extends Authenticatable implements MustVerifyEmail{
         $user = new self();
         $user->name = $data['name'];
         $user->email = $data['email'];
-        $user->password = bcrypt($data['password']); // Hashage du mot de passe
-        $user->role_id = $data['role_id'];
+        $user->password = bcrypt($data['password']);
         $user->save();
-
+    
+        // Assigner le rôle à l'utilisateur
+        $role = Role::find($data['role_id']);
+        if ($role) {
+            $user->assignRole($role);
+        }
+    
         return $user;
     }
+    
+    
 
     public static function updateUser($data){
         $user = User::find($data->id);

@@ -11,12 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('permissions', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->timestamps();
+        Schema::table('clients', function (Blueprint $table) {
+            $table->string('password')->nullable()->after('address');
         });
-        
     }
 
     /**
@@ -24,6 +21,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('permissions');
+        Schema::table('clients', function (Blueprint $table) {
+            $table->dropColumn('password');
+        });
     }
 };
+
