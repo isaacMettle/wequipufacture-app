@@ -4,21 +4,28 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Models\Role;
 
 class Client extends Model {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable , HasRoles, HasApiTokens;
 
     protected $fillable = [
         'name',
         'NIF',
         'email',
         'address',
+        'password'
     ];
 
     protected $table = 'clients';
     protected $primaryKey = 'id';
     protected $keyType = 'int';
     public $timestamps = false;
+
+    protected $guard_name = 'web'; // ou le nom du guard que vous utilisez
+
 
     public function invoices() {
         return $this->hasMany(Invoice::class);
@@ -47,9 +54,15 @@ class Client extends Model {
         $client->NIF = $data['NIF'];
         $client->email = $data['email'];
         $client->address = $data['address'];
+        $client->password = bcrypt($data['password']);
         $client->save();
+    
+        // Assigner le rôle "Client" au nouvel utilisateur
+        $client->assignRole('Client');
+    
         return $client;
     }
+    
 
     public static function UpdateClient($data)
     {

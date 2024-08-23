@@ -1,39 +1,42 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Models\Role;
 
 class User extends Authenticatable {
-    use HasFactory, Notifiable , HasRoles, HasApiTokens;
+    use HasFactory, Notifiable, HasRoles, HasApiTokens;
 
     protected $fillable = [
         'name',
         'email',
         'password',
-        //'role_id'
-        // Ajouté pour permettre l'assignation de role_id
     ];
 
     protected $table = 'users';
     protected $primaryKey = 'id';
     protected $keyType = 'int';
-    public $timestamps = true; // Correction de 'timestamp' à 'timestamps'
+    public $timestamps = true;
 
     public function role() {
         return $this->belongsTo(Role::class);
     }
 
     public function permissions()
-    {
+{
+    if ($this->role) {
         return $this->role->permissions();
     }
+
+    // Retourner une relation Eloquent vide au lieu d'une collection vide
+    return Role::query()->whereNull('id'); 
+}
 
     public function hasPermission($permission)
     {
@@ -55,7 +58,6 @@ class User extends Authenticatable {
         $user->password = bcrypt($data['password']);
         $user->save();
     
-        // Assigner le rôle à l'utilisateur
         $role = Role::find($data['role_id']);
         if ($role) {
             $user->assignRole($role);
@@ -63,8 +65,6 @@ class User extends Authenticatable {
     
         return $user;
     }
-    
-    
 
     public static function updateUser($data){
         $user = User::find($data->id);

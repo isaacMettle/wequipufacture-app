@@ -40,28 +40,39 @@ class ClientController extends Controller
     }
 
     public function create(Request $request)
-    {
-        $validated = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'NIF' => 'required|string|max:20',
-            'email' => 'required|email|max:255',
-            'address' => 'required|string|max:255',
-           
+{
+    // Validation des données
+    $validated = Validator::make($request->all(), [
+        'name' => 'required|string|max:255',
+        'NIF' => 'required|string|max:20',
+        'email' => 'required|email|max:255',
+        'address' => 'required|string|max:255',
+        'password' => 'required|string|min:8' // Validation du mot de passe
+    ]);
 
-        ]);
-
-        if ($validated->fails()) {
-            return response()->json(['errors' => $validated->errors()], 422);
-        }
-
-        $client = Client::CreateClient($validated->validated());
-
-        return response()->json([
-            'message' => 'Client enregistré avec succès',
-            'client' => new ClientResource($client),
-            'Status' => 201
-        ]);
+    // Si la validation échoue, retourner les erreurs
+    if ($validated->fails()) {
+        return response()->json(['errors' => $validated->errors()], 422);
     }
+
+    // Vérifier si l'email existe déjà dans la base de données
+    $existingClient = Client::where('email', $validated->validated()['email'])->first();
+
+    if ($existingClient) {
+        return response()->json(['error' => 'Cet email est déjà utilisé.'], 409);
+    }
+
+    // Création du client
+    $client = Client::create($validated->validated());
+
+    return response()->json([
+        'message' => 'Client enregistré avec succès',
+        'client' => new ClientResource($client),
+        'status' => 201
+    ]);
+}
+
+
 
     public function update(Request $request, $id)
     {
